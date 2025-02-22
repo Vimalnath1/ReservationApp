@@ -20,7 +20,6 @@
             padding: 100px 50px;
             font-size: 30px;
             font-weight: bold;
-            
             margin: 10px;
             border: none;
             border-radius: 8px;
@@ -58,20 +57,59 @@
             width: 50%;
             margin: auto;
         }
+        .form-container input, .form-container textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #cb6605;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #a85204;
+        }
     </style>
     <script>
         function showBusinessOptions() {
+            history.pushState({ page: 'business-options' }, '', '');
             document.getElementById('buttons-container').style.display = 'none';
             document.getElementById('business-options').style.display = 'block';
         }
+        
         function showSignupCredentials() {
+            history.pushState({ page: 'signup-credentials' }, '', '');
             document.getElementById('business-options').style.display = 'none';
             document.getElementById('signup-credentials').style.display = 'block';
         }
+        
         function showSignupPage() {
+            history.pushState({ page: 'signup-container' }, '', '');
             document.getElementById('signup-credentials').style.display = 'none';
             document.getElementById('signup-container').style.display = 'block';
         }
+        
+        window.onpopstate = function(event) {
+            document.getElementById('buttons-container').style.display = 'none';
+            document.getElementById('business-options').style.display = 'none';
+            document.getElementById('signup-credentials').style.display = 'none';
+            document.getElementById('signup-container').style.display = 'none';
+            
+            if (event.state) {
+                document.getElementById(event.state.page).style.display = 'block';
+            } else {
+                document.getElementById('buttons-container').style.display = 'block';
+            }
+        };
     </script>
 </head>
 <body>
