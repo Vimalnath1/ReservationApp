@@ -147,12 +147,11 @@
     </div>
     <div id="signup-container" class="form-container">
         <h2>Business Signup</h2>
-        <form>
-            <input type="text" placeholder="Business Name" required>
-            <input type="text" placeholder="Address" required>
-            <input type="number" placeholder="Number of Seats" required>
-            <input type="text" placeholder="Cuisine Type" required>
-            <textarea placeholder="Additional Information"></textarea>
+        <form action="http://127.0.0.1:8000/auth/business_signup/" method="POST">
+            <input type="text" name="name" placeholder="Business Name" required>
+            <input type="text" name="address"placeholder="Address" required>
+            <input type="number" name="capacity" placeholder="Number of Seats" required>
+            <input type="text" name="type" placeholder="Cuisine Type" required>
             <button type="submit">Sign Up</button>
         </form>
     </div>

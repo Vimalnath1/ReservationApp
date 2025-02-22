@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -45,11 +45,12 @@ def signup(request):
             # return redirect('/register/')  
 
         messages.success(request, "Account created successfully!")
-        return redirect('http://127.0.0.1:5500/Sample1.html')
+        # return redirect('http://127.0.0.1:5500/Sample1.html')
         # print(user)
         # Set the user's password and save the user object
         # user.set_password(password)
         user.save()
+        return HttpResponse(status=201)
         # return JsonResponse({'status': 'success', 'message': 'User created or updated successfully.'})    
 @csrf_exempt
 def login_user(request):
@@ -70,4 +71,32 @@ def login_user(request):
         else:
             # Log in the user and redirect to the home page upon successful login
             login(request, user)
-            return JsonResponse({'status': 'success', 'message': 'User created or updated successfully.'})    
+            return HttpResponse(status=201)
+
+@csrf_exempt
+@login_required
+def business_signup(request):
+    if request.method == "POST":
+        name = request.POST.get('name', "")
+        addr = request.POST.get('address', "")
+        seats = request.POST.get('capacity', 0)
+        type = request.POST.get('type', "")
+
+        user = request.user 
+
+        existing_business = supabase_client.table("BusinessDB").select("busid").eq("busid", user.id).execute()
+
+        if existing_business.data:
+            response = supabase_client.table("BusinessDB").update({
+                "name": name,
+                "address": addr,
+                "capacity": int(seats),
+                "type": type,
+            }).eq("busid", user.id).execute()
+
+            if "error" in response:
+                return JsonResponse({"error": "Failed to update business"}, status=500)
+
+            return JsonResponse({"message": "Business updated successfully"}, status=200)
+
+    return HttpResponse(status=204) 
