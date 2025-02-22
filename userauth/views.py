@@ -54,9 +54,8 @@ def signup(request):
 @csrf_exempt
 def login_user(request):
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        
+        username = request.POST.get('username',"")
+        password = request.POST.get('password',"")
         # Check if a user with the provided username exists
         if not User.objects.filter(username=username).exists():
             # Display an error message if the username does not exist
