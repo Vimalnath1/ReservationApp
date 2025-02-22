@@ -18,8 +18,9 @@ supabase_client = supabase.create_client( # type: ignore
 @csrf_exempt
 def signup(request):
     if request.method=="POST":
-        userName = request.POST['username']
-        code = request.POST['password'] 
+        print(request.POST)
+        userName = request.POST.get('username',"")
+        code = request.POST.get('password',"")
         # user = User.objects.exists(username=userName)
         if User.objects.filter(username=userName).exists():
             # Display an information message if the username is taken
@@ -38,18 +39,18 @@ def signup(request):
         }
         response = supabase_client.table("BusinessDB").insert(data).execute()
 
-        if response.get("error"):
-            messages.error(request, "Failed to register user in Supabase!")
+        # if response.get("error"):
+        #     messages.error(request, "Failed to register user in Supabase!")
     
             # return redirect('/register/')  
 
         messages.success(request, "Account created successfully!")
-        # return redirect('/login/')
+        return redirect('http://127.0.0.1:5500/Sample1.html')
         # print(user)
         # Set the user's password and save the user object
         # user.set_password(password)
         user.save()
-        return JsonResponse({'status': 'success', 'message': 'User created or updated successfully.'})    
+        # return JsonResponse({'status': 'success', 'message': 'User created or updated successfully.'})    
 @csrf_exempt
 def login_user(request):
     if request.method == "POST":
