@@ -68,7 +68,7 @@ ROOT_URLCONF = 'ReservationApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [r"C:\Users\vimal\Documents\Coding Stuff\Hackathon\ReservationApp\templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

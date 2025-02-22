@@ -50,7 +50,8 @@ def signup(request):
         # Set the user's password and save the user object
         # user.set_password(password)
         user.save()
-        return HttpResponse(status=201)
+        login(request,user)
+        return render(request,"signupcontainer.html")
         # return JsonResponse({'status': 'success', 'message': 'User created or updated successfully.'})    
 @csrf_exempt
 def login_user(request):
