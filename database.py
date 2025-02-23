@@ -102,14 +102,14 @@ def get_waitinfo(id):
 
 
 
-def leaving_time(customer_id, customer_address, business_address):
+def leaving_time(customer_id, travel_time):
     wait_time = get_waitinfo(customer_id)[1]
-    #travel_time = get_travel_time(customer_address, business_address) GET FROM SIVARAJ
 
     if wait_time <= travel_time():
         print("Time to leave NOW!")
     else:
         leave_in = wait_time - travel_time()
-        print(f"Leave in {leave_in} minutes.")
+        print(f"Wait time now is {wait_time} minutes.")
+        print(f"You can choose to leave in {leave_in} minutes.")
 
-    return leave_in
+    return wait_time,leave_in
