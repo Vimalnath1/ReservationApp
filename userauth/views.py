@@ -166,3 +166,39 @@ def make_customer(request):
         else:
             return JsonResponse({"error": "Failed to insert customer"}, status=500)
 
+def confirm_booking(request, booking_id):
+    # Fetch customer data from the 'CustomerDB' table
+    customer_data = supabase_client.table('CustomerDB').select('*').eq('id', booking_id).execute()
+    business_data = supabase_client.table('BusinessDB').select('*').execute()
+    print(customer_data)
+    # Check if data exists
+    if not customer_data.data:
+        return render(request, 'error.html', {'error': 'Booking not found'})
+
+    # Extract booking data for the customer
+    booking_info = customer_data.data[0]  # Assuming only one result
+    customer_name = booking_info['cust_name']
+    booking_status = booking_info['status']
+    event_name = booking_info['business']
+    booking_dt = booking_info['booking_dt']
+    email = booking_info['email']
+
+    # Find venue based on the business name
+    venue = ''
+    for business in business_data.data:
+        if business['name'] == event_name:
+            venue = business['address']
+            break
+
+    # Create the booking context to pass to the template
+    booking_context = {
+        "customer_name": customer_name,
+        "booking_status": booking_status,
+        "event_name": event_name,
+        "venue": venue,
+        "date_time": booking_dt,
+        "email": email
+    }
+
+    # Render the 'Confirmation.html' template with the booking details
+    return render(request, 'Confirmation.html', booking_context)

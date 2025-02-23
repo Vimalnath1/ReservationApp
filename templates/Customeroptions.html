@@ -56,7 +56,11 @@
     <h2>Reservation</h2>
     <div class="button-container">
         <a href="ReserveForm.html" class="button">Reserve</a>
-        <button class="button" onclick="checkReservation()">Check</button>
+        {% comment %} <a href="Confirmation.html" class="button">Check</button> {% endcomment %}
+        <form method="POST" action="http://127.0.0.1:8000/auth/confirm/2/">
+            {% csrf_token %}
+            <button class="button" type="submit">Check</button>
+        </form>
     </div>
 </body>
 </html>

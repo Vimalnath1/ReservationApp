@@ -18,3 +18,5 @@ def reservation_search(request):
     return render(request,"ReservationSearch.html")
 def reserve_form(request):
     return render(request,"ReserveForm.html")
+def confirmation(request):
+    return render(request,"Confirmation.html")

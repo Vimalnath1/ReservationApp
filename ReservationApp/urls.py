@@ -28,5 +28,6 @@ urlpatterns = [
     path("signupcontainer.html",views.sign_up_container),
     path("Customeroptions.html",views.customer_options),
     path("ReservationSearch.html",views.reservation_search),
-    path("ReserveForm.html",views.reserve_form)
+    path("ReserveForm.html",views.reserve_form),
+    path("Confirmation.html",views.confirmation)
 ]
