@@ -1,3 +1,4 @@
+import json
 import random
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect
@@ -10,7 +11,8 @@ import supabase
 import environ
 import database
 # Create your views here.
-
+global increment
+increment=0
 env=environ.Env()
 supabase_client = supabase.create_client( # type: ignore
     env("SUPABASE_URL"),
@@ -92,12 +94,26 @@ def business_signup(request):
 
         existing_business = supabase_client.table("BusinessDB").select("busid").eq("busid", user.id).execute()
 
+        if name=="Ambar Indian Restaurant":
+            lat=40.1112653
+            longit=-88.2290866
+
+        elif name=="Harry's Chocolate Shop":
+            lat=40.4238816969697
+            long=-86.90882113
+        
+        else:
+            lat=40
+            long=-88
+
         if existing_business.data:
             response = supabase_client.table("BusinessDB").update({
                 "name": name,
                 "address": addr,
                 "capacity": int(seats),
                 "type": type,
+                "latitude":lat,
+                "longitude":longit
             }).eq("busid", user.id).execute()
 
             if "error" in response:
@@ -161,8 +177,9 @@ def make_customer(request):
         }).execute()
 
         if response.data:
-            return render(request,"ReservationSearch.html")
-            # return JsonResponse({"customer_id": new_id, "name": name, "booking_dt": time, "party_size": party, "email": email})
+            # show_places(request)
+            return calculate(request)
+            # return render(request, 'testing1.html')
         else:
             return JsonResponse({"error": "Failed to insert customer"}, status=500)
 
@@ -202,3 +219,99 @@ def confirm_booking(request, booking_id):
 
     # Render the 'Confirmation.html' template with the booking details
     return render(request, 'Confirmation.html', booking_context)
+
+
+@csrf_exempt
+def show_places(request):
+    # Retrieve the travel times from the session
+    travel_times = request.session.get('travel_times', {})
+    print("",travel_times)
+    # Fetch business data from Supabase
+    business_data = supabase_client.table('BusinessDB').select('*').execute()
+    db_data = business_data.data
+    print(db_data)
+    x=1
+    ppl={}
+    esttime={}
+    for time in travel_times:
+        try:
+            ppl,esttime=database.get_waitinfo(x)
+        except:
+            pass
+        x+=1
+          # Calculate wait times and estimated times
+    # time_taken = {'Ambar Indian Restaurant': 114, 'Cheesecake Factory': 10}
+    # for i in travel_times:
+    #     est_time[i] = database.leaving_time(travel_times[i])  # Use the travel times from the session
+    # print("rsam30@yahoo.com ",est_time)
+    restaurant_data = [
+        [i['name'], esttime.get(i['name'], 0),travel_times.get(i['name'], 0),ppl.get(i["name"],0)]
+        for i in db_data
+    ]
+    
+    print("Restaurant Data:", restaurant_data)
+    # database.leaving_time(6,travel_times[""])
+    global increment; 
+    increment=x
+    # Render the buttons.html template with the restaurant data
+    return render(request, 'buttons.html', {'restaurant_data': restaurant_data})
+
+# def calculate(coordinates, main_data):
+#     """
+#     Render the HTML page and send the destinations list to it.
+#     """
+#     # Render the template and pass coordinates to the context
+#     return render(None, 'testing1.html', {'destinations': coordinates})
+@csrf_exempt
+def submit_data(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(f"Received Data: {data}")
+        
+        # Process the data (e.g., store it in the session or database)
+        request.session['travel_times'] = data  # Store the data in the session
+        
+        # Redirect to the show_places view
+        return redirect('/auth/show_places/')
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+# def index(request):
+#     """
+#     The main view that calculates the coordinates and renders the template.
+#     """
+#     data1 = supabase.table("BusinessDB").select("name", "latitude", "longitude").execute()
+#     main_data = data1.data
+#     coordinates = []
+
+#     for i in main_data:
+#         coordinates.append([[i["longitude"], i["latitude"]], i["name"]])
+
+#     # Render the index template and send the list of coordinates
+#     return calculate(coordinates, main_data)
+@csrf_exempt
+def calculate(request):
+    data1 = supabase_client.table("BusinessDB").select("name", "latitude", "longitude").execute()
+    main_data = data1.data
+    coordinates = []
+    for i in main_data:
+        coordinates.append([[i["longitude"], i["latitude"]], i["name"]])
+    print(coordinates)
+    # Render the testing1.html template
+    return render(request, 'testing1.html', {"destinations": coordinates})
+
+@csrf_exempt
+def select_restaurant(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(f"Received Data: {data}")
+        global increment
+        # Update the customer's business in the database
+        customer = supabase_client.table("CustomerDB").select("id").eq("id", increment).execute()
+        if customer.data:
+            response = supabase_client.table("CustomerDB").update({
+                "business": data["name"]
+            }).eq("id",increment).execute()
+            increment=0
+            # Return a JSON response indicating success
+            return render(request,"main.html")

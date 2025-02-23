@@ -20,3 +20,7 @@ def reserve_form(request):
     return render(request,"ReserveForm.html")
 def confirmation(request):
     return render(request,"Confirmation.html")
+def testing1(request):
+    return render(request,"testing1.html")
+def buttons(request):
+    return render(request,"buttons.html")

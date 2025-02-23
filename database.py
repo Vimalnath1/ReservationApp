@@ -83,19 +83,19 @@ def increase_wait_time():
 
 
 def get_waitinfo(id):
-    booking = supabase.table("CustomerDB").select("created_at", "business").eq("id", id).single().execute()
+    booking = supabase_client.table("CustomerDB").select("created_at", "business").eq("id", id).single().execute()
     if not booking.data:
         print("Invalid booking ID")
         return None
     customer_time = booking.data["created_at"]
     bus_name = booking.data["business"]
 
-    response = supabase.table("CustomerDB").select("count", count="exact").eq("business", bus_name).eq("status", "waiting") \
+    response = supabase_client.table("CustomerDB").select("count", count="exact").eq("business", bus_name).eq("status", "waiting") \
         .lt("created_at", customer_time).execute()
     
     people_ahead = response.data[0]["count"] if response.data else 0
 
-    business_info = supabase.table("BusinessDB").select("wait_time").eq("name", bus_name).single().execute()
+    business_info = supabase_client.table("BusinessDB").select("wait_time").eq("name", bus_name).single().execute()
     ppwait = business_info.data["wait_time"] if business_info.data else 10  # Default 10 mins if not found
 
     est_time = people_ahead * ppwait
@@ -109,14 +109,14 @@ def get_waitinfo(id):
 
 
 
-def leaving_time(customer_id, customer_address, business_address):
-    wait_time = get_waitinfo(customer_id)[1]
-    #travel_time = get_travel_time(customer_address, business_address) GET FROM SIVARAJ
+def leaving_time(travel_time):
+    wait_time = get_waitinfo(2)[1]
 
-    if wait_time <= travel_time():
+    if wait_time <= travel_time:
         print("Time to leave NOW!")
     else:
-        leave_in = wait_time - travel_time()
-        print(f"Leave in {leave_in} minutes.")
+        leave_in = wait_time - travel_time
+        print(f"Wait time now is {wait_time} minutes.")
+        print(f"You can choose to leave in {leave_in} minutes.")
 
-    return leave_in
+    return wait_time

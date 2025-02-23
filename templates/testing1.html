@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Travel Time to Multiple Destinations</title>
+</head>
+<body onload="getLocation()">
+  <h1>Loading...</h1>
+  <p>Please wait while we fetch your location and calculate the travel times to the destinations.</p>
+  <script type="text/javascript">
+    const destinations = {{ destinations | safe }};
+  </script>
+  <script>
+    let globalDict = {}
+    const API_KEY = '5b3ce3597851110001cf6248a14cafdf343347279259d089b77f7ec0';
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        document.getElementById("results").innerHTML = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    function showPosition(position) {
+      const userLocation = [position.coords.longitude, position.coords.latitude];
+      destinations.forEach((destination) => {
+        getTravelTime(userLocation, destination[0], destination[1]);
+      });
+    }
+
+    function showError(error) {
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          document.getElementById("results").innerHTML = "User denied the request for Geolocation.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          document.getElementById("results").innerHTML = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          document.getElementById("results").innerHTML = "The request to get user location timed out.";
+          break;
+        case error.UNKNOWN_ERROR:
+          document.getElementById("results").innerHTML = "An unknown error occurred.";
+          break;
+      }
+    }
+
+    function getTravelTime(start, end, destinationNumber) {
+      const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${API_KEY}&start=${start[0]},${start[1]}&end=${end[0]},${end[1]}`;
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.features && data.features[0]) {
+            const travelTime = data.features[0].properties.segments[0].duration / 60;
+            globalDict[destinationNumber] = Math.round(travelTime);
+            
+            // Send the data to the Django backend
+            fetch('/auth/submit_data/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(globalDict)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to submit data. Server responded with: ${response.status}`);
+                }
+                // Redirect to the next step
+                window.location.href = '/auth/show_places/';
+            })
+            .catch(error => {
+                console.error('Error submitting data:', error);
+            });
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  </script>
+</body>
+</html>
