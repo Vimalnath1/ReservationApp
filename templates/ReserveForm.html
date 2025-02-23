@@ -7,11 +7,11 @@
     <style>
         body {
             margin-top: 150px;
-            background-color: #8c5959;
+            background-color:    #812e2e  ;
             text-align: center;
             font-family: Arial, sans-serif;
             color: white;
-            background-image: url("https://media.pitchfork.com/photos/66747f5a20cd57b4bacd2bac/2:1/w_2240,c_limit/Kendrick-Lamar.jpg");
+            background-image: url("");
             background-size:1500px;
             background-blend-mode: multiply;
         }
@@ -38,7 +38,7 @@
         }
         .submit-button {
             padding: 15px 40px;
-          margin:30px;
+            margin:30px;
             font-size: 22px;
             font-weight: bold;
             border: none;
@@ -52,6 +52,24 @@
             background-color: #cc5200;
             transform: scale(1.05);
         }
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            margin: 30px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            background-color: #ff6600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background-color: #cc5200;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -59,12 +77,22 @@
     <div class="signup-container">
         <form>
             <input type="text" class="input-field" placeholder="Name" required><br>
-            <input type="text" class="input-field" placeholder="Address" required><br>
+            <input type="text" class="input-field" placeholder="MM/DD/YYYY" required><br>
+            <select class="input-field" required>
+                <option value="" disabled selected>Select Time</option>
+                <script>
+                    for (let h = 0; h < 24; h++) {
+                        for (let m = 0; m < 60; m += 30) {
+                            let hour = h < 10 ? "0" + h : h;
+                            let minute = m < 10 ? "0" + m : m;
+                            document.write(`<option value="${hour}:${minute}">${hour}:${minute}</option>`);
+                        }
+                    }
+                </script>
+            </select><br>
             <input type="number" class="input-field" placeholder="Number of Customers" required><br>
-            <button type="submit" class="submit-button">Enter</button>
-            
         </form>
-
+        <a href="ReservationSearch.html" class="button">Enter</a>
     </div>
 </body>
 </html>
