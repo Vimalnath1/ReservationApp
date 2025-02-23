@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 import supabase
 import environ
+import database
 # Create your views here.
 
 env=environ.Env()
@@ -111,3 +112,22 @@ def fetch_user_id(request):
     user=request.user
     user_id = user.id  # Get logged-in user's ID
     return JsonResponse({"userid":user_id})
+
+@csrf_exempt
+@login_required
+def get_queue(request):
+    user=request.user
+    print(user.id)
+    existing_business = supabase_client.table("BusinessDB").select("*").eq("busid", user.id).execute()
+    print(existing_business.data[0]["name"])
+    # if existing_business.data:
+    # # Access the name column from the result
+    #     business_name = existing_business.data["name"]
+    #     print("Business Name:", business_name)
+    try:
+        names=database.mycuhzz(existing_business.data[0]["name"])
+        print(names)
+        return JsonResponse({"queue":names})
+    except Exception as e:
+        print(f"Error: {e}")
+        return JsonResponse({"message": "Error", "error": str(e)}, status=530)

@@ -1,5 +1,12 @@
 import supabase
+import environ
+# Create your views here.
 
+env=environ.Env()
+supabase_client = supabase.create_client( # type: ignore
+    env("SUPABASE_URL"),
+    env("SUPABASE_KEY")  # Supabase API Key
+)
 def remove_customer(customer_name):
     response = supabase.table("CustomerDB").delete().eq("name", customer_name).execute()
 
@@ -55,7 +62,7 @@ def add_bez(business_info):
     return
 
 def mycuhzz(bus_name):
-    response = supabase.table("CustomerDB").select("*").eq("business", bus_name).execute()
+    response = supabase_client.table("CustomerDB").select("*").eq("business", bus_name).execute()
 
     if not response.data:
         print("No reservations found for this business.")

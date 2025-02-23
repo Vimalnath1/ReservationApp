@@ -5,12 +5,14 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        const supabaseUrl = "https://lxbyasmuewlppfbvqvkq.supabase.co"  // Replace with your Supabase URL
+        const supabaseUrl = "https://lxbyasmuewlppfbvqvkq.supabase.co";  // Replace with your Supabase URL
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4Ynlhc211ZXdscHBmYnZxdmtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAxODMxNDMsImV4cCI6MjA1NTc1OTE0M30.TT_ev1z60HZ5gB8KzL2qvtxPzuOKQ1TxyUTRfbThyC8";  // Replace with your Supabase anon key
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         let availableSeats = 0;
-        let userId=null;
+        let userId = null;
+        let queue = [];
+
         async function getAvailableSeats(userID) {
             try {
                 const { data, error } = await supabase
@@ -18,7 +20,7 @@
                     .select('capacity')  // Replace with your column name
                     .eq("busid", userID)  // Filter data by busid (user_id)
                     .single();  // Fetch a single row
-                console.log(data)
+                console.log(data);
                 if (error) {
                     console.error('Error fetching data:', error);
                     document.getElementById('seatCount').innerText = "Error";
@@ -26,31 +28,25 @@
                 } else {
                     console.log("Seats Data:", data);
                     document.getElementById('seatCount').innerText = data.capacity;  // Update seat count
-                    availableSeats=data.capacity
+                    availableSeats = data.capacity;
                 }
             } catch (error) {
                 console.error('JavaScript Error:', error);
                 document.getElementById('seatCount').innerText = "Error";
             }
         }
-        // Function to fetch user_id via AJAX from the Django API
+
         async function fetchUserData() {
             try {
-                // Make the fetch request to the Django view
                 const response = await fetch('/auth/api/fetch_user_id/');  // This hits the Django view
-
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-
-                // Parse the JSON response
                 const data = await response.json();
-                console.log(data.userid)
-                userId=data.userid
-                getAvailableSeats(data.userid)
-                // Use the data (for example, display it in the console or in the UI)
-                console.log("Fetched user data:", data);  // Log the user data
-                
+                console.log(data.userid);
+                userId = data.userid;
+                getAvailableSeats(data.userid);
+                console.log("Fetched user data:", data);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
@@ -58,7 +54,6 @@
 
         async function updateSeatCount(newSeatCount) {
             try {
-                //const userID = 40;  // Replace with the actual user ID
                 const { data, error } = await supabase
                     .from('BusinessDB')  // Replace with your actual table name
                     .update({ capacity: newSeatCount })  // Update the capacity column with the new seat count
@@ -78,15 +73,12 @@
             }
         }
 
-        // Add event listeners for the plus and minus buttons
         function setupButtons() {
-            // Plus button - Increase seat count
             document.getElementById('increaseSeats').addEventListener('click', function() {
                 availableSeats++;
                 updateSeatCount(availableSeats);  // Update the seat count in the database
             });
 
-            // Minus button - Decrease seat count
             document.getElementById('decreaseSeats').addEventListener('click', function() {
                 if (availableSeats > 0) {
                     availableSeats--;
@@ -95,13 +87,51 @@
             });
         }
 
-        // Run the fetchUserData function when the page loads
+        async function fetchqueue() {
+            try {
+                const response = await fetch('/auth/api/get_queue/');  // This hits the Django view
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log(data);
+                queue = data.queue;  // Assign the queue array
+        
+                // Update the list of names in the UI
+                updateQueueList();
+            } catch (error) {
+                console.error('Error fetching queue data:', error);
+            }
+        }
+        
+        function updateQueueList() {
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = '';  // Clear the existing list
+        
+            // Add each booking in the queue to the list
+            queue.forEach(booking => {
+                const li = document.createElement('li');
+        
+                // Format the booking information
+                const bookingInfo = `
+                    <strong>Name:</strong> ${booking.cust_name}<br>
+                    <strong>Party Size:</strong> ${booking.party_size}<br>
+                    <strong>Booking Time:</strong> ${booking.booking_dt}<br>
+                    <strong>Status:</strong> ${booking.status.replace(/"/g, '')}<br>
+                    <strong>Business:</strong> ${booking.business}
+                `;
+        
+                li.innerHTML = bookingInfo;  // Set the inner HTML of the list item
+                queueList.appendChild(li);   // Add the list item to the list
+            });
+        }
+
         window.onload = function() {
+            fetchqueue();
             fetchUserData();
             setupButtons();  // Setup the button event listeners
         };
     </script>
-
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -120,12 +150,18 @@
             font-family: Arial, sans-serif;
             color: white;
         }
+        .main-container {
+            display: flex;
+            gap: 20px;  /* Space between the two columns */
+            align-items: center;  /* Vertically center the columns */
+        }
         .container {
             background-color: rgba(0, 0, 0, 0.8);
-            padding: 50px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 6px 6px 20px rgba(0, 0, 0, 1);
             text-align: center;
+            width: 300px;  /* Fixed width for the seat management */
         }
         h2 {
             margin-bottom: 20px;
@@ -150,15 +186,49 @@
             background-color: #cb6605;
             color: white;
         }
+        .names-list {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 6px 6px 20px rgba(0, 0, 0, 1);
+            width: 400px;  /* Adjust width as needed */
+            height: 60vh;  /* 60% of the screen height */
+            overflow-y: auto;  /* Add scroll if the list is too long */
+        }
+        .names-list h3 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .names-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .names-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #555;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Available Seats</h2>
-        <div class="button-container">
-            <button id="decreaseSeats">-</button>
-            <span id="seatCount">Loading...</span>  <!-- Display seat count -->
-            <button id="increaseSeats">+</button>
+    <div class="main-container">
+        <!-- Left Column: List of Names -->
+        <div class="names-list">
+            <h3>Queue</h3>
+            <ul id="queueList">
+                <!-- Names will be dynamically added here -->
+            </ul>
+        </div>
+
+        <!-- Right Column: Seat Management -->
+        <div class="container">
+            <h2>Available Seats</h2>
+            <div class="button-container">
+                <button id="decreaseSeats">-</button>
+                <span id="seatCount">Loading...</span>  <!-- Display seat count -->
+                <button id="increaseSeats">+</button>
+            </div>
         </div>
     </div>
 </body>
