@@ -51,6 +51,14 @@
             <input type="password" placeholder="Password" required>
             <button type="submit" class="button">Log In</button>
         </form>
+        <script>
+            function resetFields() {
+        document.querySelectorAll('.form-container input, .form-container textarea').forEach(field => {
+            field.value = '';
+        });
+    }
+    <button type="button" onclick="resetFields()">Reset</button>
+        </script>
     </div>
 </body>
 </html>
