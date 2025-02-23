@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address to Latitude/Longitude Converter</title>
+</head>
+<body onload="convertAddressToCoordinates()">
+
+    <script>
+        // Get the address passed from Python
+        const address = "{{ address }}";  // This is using Jinja2 templating to inject Python's address into JavaScript
+
+        let destinationCoordinates = [];
+
+        function convertAddressToCoordinates() {
+            if (!address) {
+                alert("Address is missing.");
+                return;
+            }
+
+            // Use OpenStreetMap Nominatim API to get coordinates from the address
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Nominatim API Error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.length === 0) {
+                        document.getElementById("result").innerHTML = "Address not found.";
+                        fetch('/submit_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Specify the type of data being sent
+                },
+                body: JSON.stringify([0,0])  // Convert the JavaScript object into JSON
+            })
+                        return;
+                    }
+
+                    const lat = data[0].lat;
+                    const lon = data[0].lon;
+
+                    // Set the destination coordinates
+                    destinationCoordinates = [lat, lon]; // Destination (latitude, longitude)
+                    document.getElementById("result").innerHTML = `Destination: Latitude: <b>${lat}</b> <br> Longitude: <b>${lon}</b>`;
+                    fetch('/submit_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Specify the type of data being sent
+                },
+                body: JSON.stringify(destinationCoordinates)  // Convert the JavaScript object into JSON
+            })
+                })
+                .catch(error => {
+                    document.getElementById("result").innerHTML = "Error finding coordinates.";
+                    console.error(error);
+                });
+        }
+    </script>
+<p id="result"></p> <!-- The result will be displayed here -->
+</body>
+</html>
+
+
