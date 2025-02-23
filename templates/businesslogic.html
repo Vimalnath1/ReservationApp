@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = "https://lxbyasmuewlppfbvqvkq.supabase.co"  // Replace with your Supabase URL
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4Ynlhc211ZXdscHBmYnZxdmtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAxODMxNDMsImV4cCI6MjA1NTc1OTE0M30.TT_ev1z60HZ5gB8KzL2qvtxPzuOKQ1TxyUTRfbThyC8";  // Replace with your Supabase anon key
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let availableSeats = 0;
+        let userId=null;
+        async function getAvailableSeats(userID) {
+            try {
+                const { data, error } = await supabase
+                    .from('BusinessDB')  // Replace with your actual table name
+                    .select('capacity')  // Replace with your column name
+                    .eq("busid", userID)  // Filter data by busid (user_id)
+                    .single();  // Fetch a single row
+                console.log(data)
+                if (error) {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('seatCount').innerText = "Error";
+                    return null;
+                } else {
+                    console.log("Seats Data:", data);
+                    document.getElementById('seatCount').innerText = data.capacity;  // Update seat count
+                    availableSeats=data.capacity
+                }
+            } catch (error) {
+                console.error('JavaScript Error:', error);
+                document.getElementById('seatCount').innerText = "Error";
+            }
+        }
+        // Function to fetch user_id via AJAX from the Django API
+        async function fetchUserData() {
+            try {
+                // Make the fetch request to the Django view
+                const response = await fetch('/auth/api/fetch_user_id/');  // This hits the Django view
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Parse the JSON response
+                const data = await response.json();
+                console.log(data.userid)
+                userId=data.userid
+                getAvailableSeats(data.userid)
+                // Use the data (for example, display it in the console or in the UI)
+                console.log("Fetched user data:", data);  // Log the user data
+                
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
+        async function updateSeatCount(newSeatCount) {
+            try {
+                //const userID = 40;  // Replace with the actual user ID
+                const { data, error } = await supabase
+                    .from('BusinessDB')  // Replace with your actual table name
+                    .update({ capacity: newSeatCount })  // Update the capacity column with the new seat count
+                    .eq('busid', userId);  // Match the row by user ID (busid)
+
+                if (error) {
+                    console.error('Error updating data:', error);
+                    document.getElementById('seatCount').innerText = "Error";
+                    return;
+                } else {
+                    console.log("Updated seat data:", data);
+                    availableSeats = newSeatCount;  // Update the availableSeats variable
+                    document.getElementById('seatCount').innerText = availableSeats;  // Update the UI
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Add event listeners for the plus and minus buttons
+        function setupButtons() {
+            // Plus button - Increase seat count
+            document.getElementById('increaseSeats').addEventListener('click', function() {
+                availableSeats++;
+                updateSeatCount(availableSeats);  // Update the seat count in the database
+            });
+
+            // Minus button - Decrease seat count
+            document.getElementById('decreaseSeats').addEventListener('click', function() {
+                if (availableSeats > 0) {
+                    availableSeats--;
+                    updateSeatCount(availableSeats);  // Update the seat count in the database
+                }
+            });
+        }
+
+        // Run the fetchUserData function when the page loads
+        window.onload = function() {
+            fetchUserData();
+            setupButtons();  // Setup the button event listeners
+        };
+    </script>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Options</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #454545;
+            background-image: url("https://upload.wikimedia.org/wikipedia/commons/b/b6/Purdue_Pete.jpg");
+            background-size: 360px;
+            background-blend-mode: multiply;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 6px 6px 20px rgba(0, 0, 0, 1);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .button-container button {
+            background-color: transparent;
+            border: 0px solid white;
+            color: white;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 200000000px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .button-container button:hover {
+            background-color: #cb6605;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Available Seats</h2>
+        <div class="button-container">
+            <button id="decreaseSeats">-</button>
+            <span id="seatCount">Loading...</span>  <!-- Display seat count -->
+            <button id="increaseSeats">+</button>
+        </div>
+    </div>
+</body>
+</html>

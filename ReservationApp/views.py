@@ -10,3 +10,5 @@ def sign_up(request):
     return render(request,"signup.html")
 def sign_up_container(request):
     return render(request,"signupcontainer.html")
+def business_logic(request):
+    return render(request,"businesslogic.html")
