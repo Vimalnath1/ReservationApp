@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Wait Times</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0288d1; /* Light Blue */
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        #scroll-container {
+            width: 100%;
+            height: 400px;
+            overflow-y: scroll;
+            margin: 20px 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+        }
+        .restaurant-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #0288d1;
+            align-items: center;
+        }
+        .restaurant-row div {
+            flex: 1;
+            text-align: center;
+        }
+        .restaurant-row button {
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .restaurant-row button:hover {
+            background-color: #01579b;
+        }
+        .header-row {
+            display: flex;
+            background-color: #0288d1;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            border-bottom: 2px solid #01579b;
+        }
+        .header-row div {
+            flex: 1;
+            text-align: left; /* Align Restaurant name header to the left */
+        }
+        .header-row .center-align {
+            text-align: center; /* Align Wait Time and Travel Time headers to the center */
+        }
+        .header-row .right-align {
+            text-align: right; /* Align Reserve header to the right */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Restaurant Wait Times</h1>
+        <input type="text" id="search-bar" placeholder="Search for a restaurant..." style="width: 60%; padding: 10px; border-radius: 5px; border: 2px solid #0288d1;">
+    </header>
+
+    <div id="scroll-container">
+        <!-- Header Row for the columns -->
+        <div class="header-row">
+            <div>Restaurant</div>
+            <div class="center-align">Wait Time</div>
+            <div class="center-align">Travel Time</div>
+            <div class="right-align">Reserve</div>
+        </div>
+
+        <!-- Dynamic restaurant data rows will be inserted here -->
+        {% for row in restaurant_data %}
+            <div class="restaurant-row">
+                <div>{{ row[0] }}</div> <!-- Restaurant name -->
+                <div>{{ row[1] }}</div> <!-- Wait time -->
+                <div>{{ row[2] }}</div> <!-- Travel time -->
+                <button onclick="selectRestaurant('{{ row[0] }}')">Select</button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Function to handle the restaurant selection
+        function selectRestaurant(name) {
+            console.log("Selected Restaurant: ", name);
+            // Send the selected restaurant name to the Python backend (using fetch API)
+            fetch('/select-restaurant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`You selected: ${data.name}`);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
