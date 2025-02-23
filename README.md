@@ -46,6 +46,7 @@ Frontend:
 Backend:
 - Django (Handles business logic and API)
 - Supabase (Cloud-based PostgreSQL for reservations & users)
+- Flask
   
 Database:
 - Supabase (PostgreSQL) (Stores business and reservation data)
