@@ -23,10 +23,12 @@ def signup(request):
         code = request.POST.get('password',"")
         # user = User.objects.exists(username=userName)
         if User.objects.filter(username=userName).exists():
+            user=None
             # Display an information message if the username is taken
             messages.info(request, "Username already taken!")
             # return redirect('/register/')
-        
+            if user==None:
+                return render(request,"signin.html")
         # Create a new User object with the provided information
         user = User.objects.create_user(
             username=userName,
@@ -49,6 +51,7 @@ def signup(request):
         # print(user)
         # Set the user's password and save the user object
         # user.set_password(password)
+        
         user.save()
         login(request,user)
         return render(request,"signupcontainer.html")
@@ -72,7 +75,7 @@ def login_user(request):
         else:
             # Log in the user and redirect to the home page upon successful login
             login(request, user)
-            return HttpResponse(status=201)
+            return render(request,"businesslogic.html")
 
 @csrf_exempt
 @login_required
@@ -98,6 +101,13 @@ def business_signup(request):
             if "error" in response:
                 return JsonResponse({"error": "Failed to update business"}, status=500)
 
-            return JsonResponse({"message": "Business updated successfully"}, status=200)
+            # return JsonResponse({"message": "Business updated successfully"}, status=200)
 
-    return HttpResponse(status=204) 
+    return render(request,"businesslogic.html")
+
+@csrf_exempt
+@login_required
+def fetch_user_id(request):
+    user=request.user
+    user_id = user.id  # Get logged-in user's ID
+    return JsonResponse({"userid":user_id})

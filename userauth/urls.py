@@ -4,5 +4,6 @@ from userauth.views import *
 urlpatterns = [
     path("signup/",signup),
     path("login/",login_user),
-    path("business_signup/",business_signup)
+    path("business_signup/",business_signup),
+    path('api/fetch_user_id/', fetch_user_id,name="fetch_user_id"),
 ]
