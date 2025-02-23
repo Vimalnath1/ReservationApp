@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <style>
+        body {
+            margin-top: 10px;
+            background-color: #8c5959;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            background-image: url("");
+            background-size:1500px;
+            background-blend-mode: multiply;
+        }
+        .search-container {
+            background-color: #390505;
+            padding: 20px;
+            border-radius: 12px;
+            width: 50%;
+            margin: 20px auto;
+            box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.8);
+        }
+        .search-bar {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .table-container {
+            margin: 40px auto;
+            width: 70%;
+            background-color: #390505;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.8);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            color: white;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        th {
+            background-color: #ff6600;
+            font-size: 20px;
+        }
+        tr {
+            background-color: #662222;
+            transition: all 0.3s ease-in-out;
+        }
+        tr:hover {
+            background-color: #883333;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search...">
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Estimated wait time</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const tableData = [];
+        const tableBody = document.getElementById("table-body");
+        
+        tableData.forEach(row => {
+            const tr = document.createElement("tr");
+            row.forEach(cell => {
+                const td = document.createElement("td");
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>
