@@ -7,14 +7,12 @@
     <style>
         body {
             margin-top: 100px;
-            background-color:    #812e2e  ;
             text-align: center;
             font-family: 'Poppins', sans-serif;
             color: white;
-            background-image: url("");
-            background-size: cover;
-            background-blend-mode: darken;
-            background-position: center;
+            background-image: url("https://wallpaperaccess.com/full/3609948.jpg");
+            background-size: 1600px;
+            background-blend-mode: soft-light;
         }
         h2 {
             font-size: 50px;
@@ -45,6 +43,7 @@
             border: 3px solid rgba(255, 255, 255, 0.4);
             transition: all 0.3s ease;
             text-decoration: none;
+            background: linear-gradient(135deg, #6600cc , #000000);
         }
         .button:hover {
             background: linear-gradient(135deg, #cc5200, #ff3300);
@@ -56,7 +55,6 @@
     <h2>Reservation</h2>
     <div class="button-container">
         <a href="ReserveForm.html" class="button">Reserve</a>
-        {% comment %} <a href="Confirmation.html" class="button">Check</button> {% endcomment %}
         <form method="POST" action="http://127.0.0.1:8000/auth/confirm/2/">
             {% csrf_token %}
             <button class="button" type="submit">Check</button>
