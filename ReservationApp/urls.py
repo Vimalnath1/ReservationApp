@@ -25,5 +25,8 @@ urlpatterns = [
     path("Businessoptions.html",views.first_page),
     path("signup.html",views.sign_up),
     path("signin.html",views.sign_in),
-    path("signupcontainer.html",views.sign_up_container)
+    path("signupcontainer.html",views.sign_up_container),
+    path("Customeroptions.html",views.customer_options),
+    path("ReservationSearch.html",views.reservation_search),
+    path("ReserveForm.html",views.reserve_form)
 ]

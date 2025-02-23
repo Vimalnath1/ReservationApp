@@ -1,3 +1,4 @@
+import random
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login
@@ -131,3 +132,37 @@ def get_queue(request):
     except Exception as e:
         print(f"Error: {e}")
         return JsonResponse({"message": "Error", "error": str(e)}, status=530)
+
+@csrf_exempt 
+def make_customer(request):
+    if request.method == "POST":
+        print("PP")
+        name = request.POST.get('cust_name', "")
+        time = request.POST.get("booking_dt","")
+        party = request.POST.get('party_size', "")
+        email = request.POST.get("email","")
+        
+        existing_customers = supabase_client.table("CustomerDB").select("id").order("id", desc=True).limit(1).execute()
+
+        if existing_customers.data:
+            last_id = existing_customers.data[0]["id"]  # Get the highest ID
+            new_id = last_id + 1  # Increment it
+        else:
+            new_id = 0  # Start from 100000 if no customers exist
+
+        # Insert new customer with unique ID
+        response = supabase_client.table("CustomerDB").insert({
+            "id": new_id,
+            "cust_name": name,
+            "booking_dt": time,
+            "party_size": party,
+            "email": email,
+            "cust_addr" : "f"
+        }).execute()
+
+        if response.data:
+            return render(request,"ReservationSearch.html")
+            # return JsonResponse({"customer_id": new_id, "name": name, "booking_dt": time, "party_size": party, "email": email})
+        else:
+            return JsonResponse({"error": "Failed to insert customer"}, status=500)
+

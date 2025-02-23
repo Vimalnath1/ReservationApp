@@ -75,10 +75,14 @@
 <body>
     <h2>Enter the following information</h2>
     <div class="signup-container">
-        <form>
-            <input type="text" class="input-field" placeholder="Name" required><br>
-            <input type="text" class="input-field" placeholder="MM/DD/YYYY" required><br>
-            <select class="input-field" required>
+        <form id="reservation-form" action="http://127.0.0.1:8000/auth/make_customer/" method="POST">
+            <input type="text" class="input-field" name="cust_name" placeholder="Name" required><br>
+            
+            <!-- Date Input -->
+            <input type="text" class="input-field" id="date-input" placeholder="MM/DD/YYYY" required><br>
+    
+            <!-- Time Dropdown -->
+            <select class="input-field" id="time-select" required>
                 <option value="" disabled selected>Select Time</option>
                 <script>
                     for (let h = 0; h < 24; h++) {
@@ -90,9 +94,39 @@
                     }
                 </script>
             </select><br>
-            <input type="number" class="input-field" placeholder="Number of Customers" required><br>
+    
+            <!-- Hidden Input to Store Combined Datetime -->
+            <input type="hidden" name="booking_dt" id="reservation-datetime">
+    
+            <input type="number" class="input-field" name="party_size" placeholder="Number of Customers" required><br>
+
+            <input type="text" class="input-field" name="email" placeholder="Email" required><br>
+            <button type="submit" class="button">Enter</button>
         </form>
-        <a href="ReservationSearch.html" class="button">Enter</a>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("reservation-form").addEventListener("submit", function(event) {
+                event.preventDefault();  // Prevent default form submission
+        
+                let selectedTime = document.getElementById("time-select").value;
+                let selectedDate = document.getElementById("date-input").value;
+        
+                // Combine selected time and date
+                let formattedDateTime = `${selectedTime} ${selectedDate}`;
+        
+                // Set the value of the hidden input
+                document.getElementById("reservation-datetime").value = formattedDateTime;
+                
+                // Submit the form
+                this.submit();  // Submit the form after setting the hidden input
+            });
+        });
+    </script>
+    
+        {% comment %} <a href="ReservationSearch.html" class="button">Enter</a> {% endcomment %}
+        
     </div>
 </body>
 </html>

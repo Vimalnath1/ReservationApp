@@ -12,3 +12,9 @@ def sign_up_container(request):
     return render(request,"signupcontainer.html")
 def business_logic(request):
     return render(request,"businesslogic.html")
+def customer_options(request):
+    return render(request,"Customeroptions.html")
+def reservation_search(request):
+    return render(request,"ReservationSearch.html")
+def reserve_form(request):
+    return render(request,"ReserveForm.html")
