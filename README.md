@@ -24,10 +24,13 @@ Frontend:
 - JavaScript (for dynamic interaction)
 - HTML & CSS (basic UI/UX)
 - OpenStreetMap API, OpenRootService API (for travel time estimation)
+  
 Backend:
 - Django (Handles business logic and API)
 - Supabase (Cloud-based PostgreSQL for reservations & users)
+  
 Database:
 - Supabase (PostgreSQL) (Stores business and reservation data)
+  
 Authentication:
 - Django Auth (User authentication & session management)
