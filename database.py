@@ -1,10 +1,58 @@
 import supabase
 
-def rm_cuhzz(cuh_name):
+def remove_customer(customer_name):
+    response = supabase.table("CustomerDB").delete().eq("name", customer_name).execute()
+
+    if response.error:
+        print(f"Error: {response.error['message']}")
+    else:
+        print(f"Customer '{customer_name}' removed successfully!")
+    
     return 0
 
-def add_cuhzz(cuh_name):
-    return 0
+
+def add_cuhzz(customer_info):
+    # Ensure the list has correct values
+    if len(customer_info) != 9:
+        print("Error: customer_info must have exactly 9 values (id, name, email, phone, address).")
+        return
+    
+    # Convert list to dictionary for Supabase
+
+    fields_cust = ["id","business","cust_name","cust_addr","party_size","status","email","booking_dt"]
+
+    customer_data = dict(zip(fields_cust,customer_info))
+
+    # Insert into Supabase
+    response = supabase.table("CustomerDB").insert(customer_data).execute()
+    
+    if response.error:
+        print(f"Error: {response.error['message']}")
+    else:
+        print(f"Customer '{customer_info[2]}' added successfully!")
+
+    return
+
+
+def add_bez(business_info):
+    if len(business_info) != 11:
+        print("Error: business_info must have exactly 11 values (id, name, email, phone, address).")
+        return
+    
+    # Convert list to dictionary for Supabase
+
+    fields_bus = ["username","password","type","address","latitude","longitude",\
+                  "wait_time","capacity","email","phone","name"]
+    business_data = dict(zip(fields_bus,business_info))
+
+    # Insert into Supabase
+    response = supabase.table("CustomerDB").insert(business_data).execute()
+    
+    if response.error:
+        print(f"Error: {response.error['message']}")
+    else:
+        print(f"Customer '{business_info[2]}' added successfully!")
+    return
 
 def mycuhzz(bus_name):
     response = supabase.table("CustomerDB").select("*").eq("business", bus_name).execute()
