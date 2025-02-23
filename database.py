@@ -36,7 +36,7 @@ def add_cuhzz(customer_info):
 
 def add_bez(business_info):
     if len(business_info) != 11:
-        print("Error: business_info must have exactly 11 values (id, name, email, phone, address).")
+        print("Error: business_info must have exactly 11 values.")
         return
     
     # Convert list to dictionary for Supabase
@@ -96,7 +96,7 @@ def get_waitinfo(id):
     print(f"People ahead: {people_ahead}")
     print(f"Estimated wait time: {est_time} minutes")
 
-    return people_ahead, est_time
+    return {bus_name : [people_ahead, est_time]}
 
 
 
